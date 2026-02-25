@@ -31,7 +31,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { addStock, updateStock } from '@/lib/actions/stock';
+import { stockApi } from '@/lib/api';
 import type { Stock } from '@/lib/types';
 
 type StockFormProps = {
@@ -57,10 +57,10 @@ export function StockForm({ isOpen, setIsOpen, stock }: StockFormProps) {
     setIsSubmitting(true);
     try {
       if (isEditMode) {
-        await updateStock(stock.id, values);
+        await stockApi.update(stock.id, values);
         toast({ title: 'Success', description: 'Stock item updated successfully.' });
       } else {
-        await addStock(values);
+        await stockApi.create(values);
         toast({ title: 'Success', description: 'Stock item added successfully.' });
       }
       setIsOpen(false);

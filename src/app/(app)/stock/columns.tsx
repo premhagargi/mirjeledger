@@ -12,13 +12,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { deleteStock } from '@/lib/actions/stock';
+import { stockApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 async function handleDelete(id: string) {
     if (confirm('Are you sure you want to delete this stock item?')) {
         try {
-            await deleteStock(id);
+            await stockApi.delete(id);
             // toast is not available in server action, it needs to be called from client
         } catch (error) {
             console.error(error);

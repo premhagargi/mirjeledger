@@ -41,20 +41,22 @@ export function AppSidebar() {
   return (
     <>
       <SidebarHeader>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 px-2">
             {logo ? (
               <Image
                 src={logo.imageUrl}
                 alt={logo.description}
-                width={32}
-                height={32}
+                width={36}
+                height={36}
                 data-ai-hint={logo.imageHint}
-                className="rounded-md"
+                className="rounded-xl"
               />
             ) : (
-              <Coffee className="h-6 w-6 text-primary" />
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Coffee className="h-5 w-5 text-primary" />
+              </div>
             )}
-            <h2 className="text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">
+            <h2 className="text-lg font-bold text-primary group-data-[collapsible=icon]:hidden">
                 Mirje
             </h2>
         </div>
@@ -67,10 +69,11 @@ export function AppSidebar() {
                 asChild
                 isActive={pathname.startsWith(item.href)}
                 tooltip={item.label}
+                className="transition-all duration-300"
               >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
+                <Link href={item.href} className="flex items-center gap-3">
+                  <item.icon className="h-5 w-5" />
+                  <span className="text-sm font-medium">{item.label}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -80,9 +83,9 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton onClick={logout} tooltip="Log out">
-                    <LogOut />
-                    <span>Log out</span>
+                <SidebarMenuButton onClick={logout} tooltip="Log out" className="transition-all duration-300">
+                    <LogOut className="h-5 w-5" />
+                    <span className="text-sm font-medium">Log out</span>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>

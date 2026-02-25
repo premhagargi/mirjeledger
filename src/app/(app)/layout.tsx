@@ -22,23 +22,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex min-h-screen w-full">
         <div className="hidden md:block">
-            <div className="flex h-full w-64 flex-col gap-4 border-r bg-muted/40 p-4">
-                <Skeleton className="h-8 w-32" />
-                <div className="flex flex-col gap-2">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
+            <div className="flex h-full w-64 flex-col gap-4 border-r border-border/30 bg-card p-4">
+                <Skeleton className="h-10 w-32" />
+                <div className="flex flex-col gap-3">
+                    <Skeleton className="h-12 w-full rounded-xl" />
+                    <Skeleton className="h-12 w-full rounded-xl" />
+                    <Skeleton className="h-12 w-full rounded-xl" />
+                    <Skeleton className="h-12 w-full rounded-xl" />
                 </div>
             </div>
         </div>
         <div className="flex flex-1 flex-col">
-          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
-            <Skeleton className="h-8 w-8 md:hidden" />
-            <Skeleton className="h-8 w-48" />
+          <header className="flex h-16 items-center justify-between border-b border-border/30 bg-card/50 px-6 backdrop-blur-sm">
+            <Skeleton className="h-6 w-6 md:hidden" />
+            <Skeleton className="h-6 w-48" />
           </header>
-          <main className="flex-1 p-6">
-            <Skeleton className="h-full w-full" />
+          <main className="flex-1 p-6 md:p-8">
+            <Skeleton className="h-full w-full rounded-3xl" />
           </main>
         </div>
       </div>
@@ -47,12 +47,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="border-r border-border/30">
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
         <AppHeader />
-        <main className="flex-1 bg-background p-4 md:p-6">{children}</main>
+        <main className="flex-1 bg-background p-6 md:p-8">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

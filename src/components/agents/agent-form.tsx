@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { addAgent, updateAgent } from '@/lib/actions/agent';
+import { agentApi } from '@/lib/api';
 import type { Agent } from '@/lib/types';
 
 type AgentFormProps = {
@@ -50,10 +50,10 @@ export function AgentForm({ isOpen, setIsOpen, agent }: AgentFormProps) {
     setIsSubmitting(true);
     try {
       if (isEditMode) {
-        await updateAgent(agent.id, values);
+        await agentApi.update(agent.id, values);
         toast({ title: 'Success', description: 'Agent updated successfully.' });
       } else {
-        await addAgent(values);
+        await agentApi.create(values);
         toast({ title: 'Success', description: 'Agent added successfully.' });
       }
       setIsOpen(false);

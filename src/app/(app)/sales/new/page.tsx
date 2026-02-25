@@ -1,8 +1,12 @@
-import { getStocks } from '@/lib/actions/stock';
+import { stockApi } from '@/lib/api';
 import { SaleForm } from './sale-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const dynamic = 'force-dynamic';
+
+async function getStocks() {
+  return stockApi.getAll();
+}
 
 export default async function NewSalePage() {
   const stocks = await getStocks();

@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
 import { FirebaseClientProvider } from '@/firebase';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -29,12 +30,20 @@ export default function RootLayout({
         <link rel="icon" href="/assets/mirjelogo.jpeg" type="image/jpeg" />
       </head>
       <body className={`${inter.variable} font-body antialiased`}>
-        <FirebaseClientProvider>
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
-        </FirebaseClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange={false}
+          storageKey="mirje-tea-theme"
+        >
+          <FirebaseClientProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </FirebaseClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

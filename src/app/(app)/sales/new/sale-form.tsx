@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { addSale, getLatestPurchaseRate } from '@/lib/actions/sale';
+import { saleApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { SearchableCombobox } from '@/components/searchable-combobox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -49,7 +49,7 @@ export function SaleForm({ stockOptions }: SaleFormProps) {
   useEffect(() => {
     async function fetchRate() {
       if (stockId) {
-        const rate = await getLatestPurchaseRate(stockId);
+        const rate = await saleApi.getLatestPurchaseRate(stockId);
         setPurchaseRate(rate);
       } else {
         setPurchaseRate(0);
@@ -61,7 +61,7 @@ export function SaleForm({ stockOptions }: SaleFormProps) {
   async function onSubmit(values: z.infer<typeof SaleSchema>) {
     setIsSubmitting(true);
     try {
-      await addSale(values);
+      await saleApi.create(values);
       toast({ title: 'Success', description: 'Sale recorded successfully.' });
       router.push('/sales');
     } catch (error) {

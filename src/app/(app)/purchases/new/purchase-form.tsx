@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { addPurchase } from '@/lib/actions/purchase';
+import { purchaseApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { SearchableCombobox } from '@/components/searchable-combobox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -51,7 +51,7 @@ export function PurchaseForm({ agentOptions, stockOptions }: PurchaseFormProps) 
   async function onSubmit(values: z.infer<typeof PurchaseSchema>) {
     setIsSubmitting(true);
     try {
-      await addPurchase(values);
+      await purchaseApi.create(values);
       toast({ title: 'Success', description: 'Purchase recorded successfully.' });
       router.push('/purchases');
     } catch (error) {

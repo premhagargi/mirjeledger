@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/page-header';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './columns';
 import { AgentForm } from '@/components/agents/agent-form';
-import { getAgents, deleteAgent } from '@/lib/actions/agent';
+import { agentApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import type { Agent } from '@/lib/types';
 import { PlusCircle } from 'lucide-react';
@@ -18,7 +18,7 @@ export default function AgentsPage() {
   const { toast } = useToast();
 
   const fetchAgents = async () => {
-    const agents = await getAgents();
+    const agents = await agentApi.getAll();
     setData(agents as Agent[]);
   };
 
@@ -39,7 +39,7 @@ export default function AgentsPage() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this agent?')) {
       try {
-        await deleteAgent(id);
+        await agentApi.delete(id);
         toast({ title: 'Success', description: 'Agent deleted successfully.' });
         fetchAgents();
       } catch (error) {

@@ -1,9 +1,16 @@
-import { getAgents } from '@/lib/actions/agent';
-import { getStocks } from '@/lib/actions/stock';
+import { agentApi, stockApi } from '@/lib/api';
 import { PurchaseForm } from './purchase-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const dynamic = 'force-dynamic';
+
+async function getAgents() {
+  return agentApi.getAll();
+}
+
+async function getStocks() {
+  return stockApi.getAll();
+}
 
 export default async function NewPurchasePage() {
   const agents = await getAgents();

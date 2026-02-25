@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/page-header';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './columns';
 import { StockForm } from '@/components/stock/stock-form';
-import { getStocks, deleteStock } from '@/lib/actions/stock';
+import { stockApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import type { Stock } from '@/lib/types';
 import { PlusCircle } from 'lucide-react';
@@ -18,7 +18,7 @@ export default function StockPage() {
   const { toast } = useToast();
 
   const fetchStocks = async () => {
-    const stocks = await getStocks();
+    const stocks = await stockApi.getAll();
     setData(stocks as Stock[]);
   };
 
@@ -39,7 +39,7 @@ export default function StockPage() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this stock item?')) {
       try {
-        await deleteStock(id);
+        await stockApi.delete(id);
         toast({ title: 'Success', description: 'Stock item deleted successfully.' });
         fetchStocks();
       } catch (error) {

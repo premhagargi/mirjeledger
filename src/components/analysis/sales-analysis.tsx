@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getSalesAnalysis } from '@/lib/actions/analysis';
+import { analysisApi } from '@/lib/api';
 import type { SmartSalesTrendAnalysisOutput } from '@/ai/flows/smart-sales-trend-analysis';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -34,7 +34,7 @@ export function SalesAnalysis() {
       try {
         setLoading(true);
         setError(null);
-        const result = await getSalesAnalysis();
+        const result = await analysisApi.getSalesAnalysis();
         setAnalysis(result);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
