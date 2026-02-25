@@ -50,12 +50,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, values.email, values.password);
     } catch (error) {
       const authError = error as AuthError;
-      if (authError.code === 'auth/user-not-found') {
-        // If the admin user doesn't exist, create it.
-        // This makes the first-time login seamless.
-        await createUserWithEmailAndPassword(auth, values.email, values.password);
+      // 'auth/invalid-credential' can mean user-not-found or wrong-password.
+      // 'auth/user-not-found' is for older SDK versions.
+      if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential') {
+        try {
+          // Try to create the user for the first-time login.
+          await createUserWithEmailAndPassword(auth, values.email, values.password);
+        } catch (createError) {
+          const createAuthError = createError as AuthError;
+          // If user already exists, it means password for sign-in was wrong.
+          if (createAuthError.code === 'auth/email-already-in-use') {
+            // Throw original error which indicates invalid credentials.
+            throw error;
+          }
+          // For other creation errors, throw the new error.
+          throw createError;
+        }
       } else {
-        // Re-throw other errors (e.g., wrong password)
+        // Re-throw other errors
         throw error;
       }
     }
