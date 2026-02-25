@@ -1,6 +1,7 @@
 'use client';
 
-import { getDashboardSummary } from '@/lib/actions/dashboard';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase/firebase';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Boxes, DollarSign, ShoppingCart } from 'lucide-react';
@@ -8,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import type { Purchase, Sale } from '@/lib/types';
 
 type DashboardSummary = {
   totalPurchaseAmount: number;
@@ -60,10 +62,27 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchSummary() {
       try {
-        const data = await getDashboardSummary();
-        setSummary(data);
+        const purchasesSnap = await getDocs(collection(db, 'purchases'));
+        const totalPurchaseAmount = purchasesSnap.docs
+          .map((doc) => doc.data() as Purchase)
+          .reduce((sum, purchase) => sum + purchase.totalAmount, 0);
+
+        const salesSnap = await getDocs(collection(db, 'sales'));
+        const totalSalesAmount = salesSnap.docs
+          .map((doc) => doc.data() as Sale)
+          .reduce((sum, sale) => sum + sale.totalAmount, 0);
+
+        const stockSnap = await getDocs(collection(db, 'stocks'));
+        const totalStockCount = stockSnap.size;
+
+        setSummary({
+          totalPurchaseAmount,
+          totalSalesAmount,
+          totalStockCount,
+        });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard data.');
+        console.error('Error getting dashboard summary:', err);
+        setError(err instanceof Error ? err.message : 'Could not fetch dashboard summary data.');
       } finally {
         setLoading(false);
       }
