@@ -56,8 +56,8 @@ export function AppSidebar() {
                 <Coffee className="h-5 w-5 text-primary" />
               </div>
             )}
-            <h2 className="text-lg font-bold text-primary group-data-[collapsible=icon]:hidden">
-                Mirje
+            <h2 className="text-lg font-bold text-white group-data-[collapsible=icon]:hidden">
+                Mirje Tea Depot
             </h2>
         </div>
       </SidebarHeader>
