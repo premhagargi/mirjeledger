@@ -18,9 +18,9 @@
  *   verifies that a user is authenticated and has a corresponding entry in the `/roles_admin` collection.
  * - **No Public Access**: There is no publicly readable or writable data. All operations require an
  *   authenticated admin user.
- * - **Client-Side Role Management Disabled**: The `/roles_admin` collection is read-only from the client.
- *   This is a critical security measure to prevent any possibility of privilege escalation. Admin roles
- *   must be assigned manually through the Firebase Console.
+ * - **Client-Side Role Management for First Admin**: To enable a smooth "first user is admin" setup, the
+ *   rules allow the user with the email 'admin@example.com' to create their own role document.
+ *   This is a specific exception to the general principle of not allowing client-side role modification.
  * - **Homogeneous Collections**: Each collection contains data with a uniform security requirement (admin-only).
  *   This design simplifies query rules (`list`) and ensures they are both secure and performant, avoiding
  *   "rules are not filters" issues.
@@ -65,19 +65,19 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
 
     /**
-     * @description Secures the admin role definition collection. Admins can read
-     *              this collection to verify roles, but cannot modify it from the
-     *              client to prevent accidental lock-out or privilege escalation.
+     * @description Secures the admin role definition collection. This rule allows the
+     *              designated admin user to create their own role document upon first
+     *              login, enabling the application's auto-setup feature.
      * @path        /roles_admin/{userId}
-     * @allow       (get) An admin with UID 'admin_abc' checks their own role document.
-     * @deny        (create) A user attempts to make themselves an admin from the client.
-     * @principle   Protects critical authorization data from client-side modification.
+     * @allow       (get) Any authenticated user checks their own role document to see if they are an admin.
+     * @allow       (create, update) The user with email 'admin@example.com' creates or updates their own role document.
+     * @deny        (delete) No user can delete a role from the client.
+     * @principle   Enables a self-service first-admin setup while restricting role modification to the designated admin.
      */
     match /roles_admin/{userId} {
-      allow get: if isAdmin();
+      allow get: if isSignedIn() && request.auth.uid == userId;
       allow list: if false; // Listing roles is disabled for security.
-      allow create: if false; // Roles must be created server-side or in the console.
-      allow update: if false; // Roles must be updated server-side or in the console.
+      allow create, update: if isSignedIn() && request.auth.uid == userId && request.auth.token.email == 'admin@example.com';
       allow delete: if false; // Roles must be deleted server-side or in the console.
     }
 
