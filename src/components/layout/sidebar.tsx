@@ -7,9 +7,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -24,6 +21,8 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -37,12 +36,24 @@ const menuItems = [
 export function AppSidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const logo = PlaceHolderImages.find((img) => img.id === 'logo');
 
   return (
     <>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-            <Coffee className="h-6 w-6 text-primary" />
+            {logo ? (
+              <Image
+                src={logo.imageUrl}
+                alt={logo.description}
+                width={32}
+                height={32}
+                data-ai-hint={logo.imageHint}
+                className="rounded-md"
+              />
+            ) : (
+              <Coffee className="h-6 w-6 text-primary" />
+            )}
             <h2 className="text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">
                 Brewventory
             </h2>
