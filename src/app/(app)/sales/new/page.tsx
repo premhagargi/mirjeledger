@@ -2,6 +2,8 @@ import { getStocks } from '@/lib/actions/stock';
 import { SaleForm } from './sale-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewSalePage() {
   const stocks = await getStocks();
 
