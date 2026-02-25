@@ -7,6 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -36,7 +37,13 @@ const menuItems = [
 export function AppSidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
   const logo = PlaceHolderImages.find((img) => img.id === 'logo');
+
+  const handleNavigation = () => {
+    // Close mobile sidebar on navigation
+    setOpenMobile(false);
+  };
 
   return (
     <>
@@ -71,7 +78,7 @@ export function AppSidebar() {
                 tooltip={item.label}
                 className="transition-all duration-300"
               >
-                <Link href={item.href} className="flex items-center gap-3">
+                <Link href={item.href} onClick={handleNavigation} className="flex items-center gap-3">
                   <item.icon className="h-5 w-5" />
                   <span className="text-sm font-medium">{item.label}</span>
                 </Link>
