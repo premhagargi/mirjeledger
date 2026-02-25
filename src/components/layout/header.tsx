@@ -1,7 +1,6 @@
 'use client';
 
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,18 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const getPageTitle = (path: string) => {
-    const pathName = path.split('/').pop() || 'dashboard';
-    if(pathName === 'new') {
-        const parentPath = path.split('/')[1];
-        return `New ${parentPath.charAt(0).toUpperCase() + parentPath.slice(1, -1)}`
-    }
-    return pathName.charAt(0).toUpperCase() + pathName.slice(1);
-}
-
 export function AppHeader() {
-  const pathname = usePathname();
-  const title = getPageTitle(pathname);
   const { theme, setTheme } = useTheme();
 
   return (
@@ -31,10 +19,10 @@ export function AppHeader() {
   <div className="flex items-center gap-4">
     <SidebarTrigger className="md:hidden" />
 
-    {/* Title with separate rounded background */}
-    <div className="rounded-2xl bg-card/60 backdrop-blur-md border border-white/10 px-5 py-2 shadow-lg">
+    {/* Welcome message with soft gradient */}
+    <div className="rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-accent/10 backdrop-blur-md border border-white/10 px-5 py-2 shadow-lg">
       <h1 className="text-2xl font-semibold tracking-tight">
-        {title}
+        <span className="text-primary">Hi,</span> Pratik
       </h1>
     </div>
   </div>
