@@ -1,7 +1,6 @@
 'use client';
 
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/firebase';
+import { collection, getDocs, FirestoreError } from 'firebase/firestore';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Boxes, DollarSign, ShoppingCart } from 'lucide-react';
@@ -10,6 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import type { Purchase, Sale } from '@/lib/types';
+import { useFirestore } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 type DashboardSummary = {
   totalPurchaseAmount: number;
@@ -58,21 +60,43 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const db = useFirestore();
 
   useEffect(() => {
+    if (!db) {
+      return;
+    }
+
+    async function fetchAndProcess(colName: string) {
+        const colRef = collection(db, colName);
+        try {
+            return await getDocs(colRef);
+        } catch (err: any) {
+            if (err instanceof FirestoreError && err.code === 'permission-denied') {
+                const permissionError = new FirestorePermissionError({ path: colRef.path, operation: 'list' });
+                errorEmitter.emit('permission-error', permissionError);
+                throw permissionError; 
+            }
+            throw err;
+        }
+    }
+
     async function fetchSummary() {
+      setLoading(true);
+      setError(null);
       try {
-        const purchasesSnap = await getDocs(collection(db, 'purchases'));
+        const purchasesSnap = await fetchAndProcess('purchases');
+        const salesSnap = await fetchAndProcess('sales');
+        const stockSnap = await fetchAndProcess('stocks');
+
         const totalPurchaseAmount = purchasesSnap.docs
           .map((doc) => doc.data() as Purchase)
           .reduce((sum, purchase) => sum + purchase.totalAmount, 0);
 
-        const salesSnap = await getDocs(collection(db, 'sales'));
         const totalSalesAmount = salesSnap.docs
           .map((doc) => doc.data() as Sale)
           .reduce((sum, sale) => sum + sale.totalAmount, 0);
 
-        const stockSnap = await getDocs(collection(db, 'stocks'));
         const totalStockCount = stockSnap.size;
 
         setSummary({
@@ -81,7 +105,6 @@ export default function DashboardPage() {
           totalStockCount,
         });
       } catch (err) {
-        console.error('Error getting dashboard summary:', err);
         setError(err instanceof Error ? err.message : 'Could not fetch dashboard summary data.');
       } finally {
         setLoading(false);
@@ -89,7 +112,7 @@ export default function DashboardPage() {
     }
 
     fetchSummary();
-  }, []);
+  }, [db]);
 
   if (loading) {
     return <DashboardSkeleton />;
