@@ -8,9 +8,8 @@ import { Sale } from '../types';
 export async function getSalesAnalysis(): Promise<SmartSalesTrendAnalysisOutput> {
   const salesQuery = query(collection(db, 'sales'), orderBy('date', 'asc'));
   const salesSnapshot = await getDocs(salesQuery);
-  const salesData = salesSnapshot.docs.map(doc => doc.data() as Sale);
-
-  if (salesData.length === 0) {
+  
+  if (salesSnapshot.empty) {
     return {
       popularProducts: [],
       salesPeaks: [],
@@ -18,6 +17,8 @@ export async function getSalesAnalysis(): Promise<SmartSalesTrendAnalysisOutput>
       overallInsights: "No sales data available to analyze. Start by adding some sales records."
     }
   }
+
+  const salesData = salesSnapshot.docs.map(doc => doc.data() as Sale);
 
   const analysisInput: SmartSalesTrendAnalysisInput = {
     salesData: salesData.map(sale => ({

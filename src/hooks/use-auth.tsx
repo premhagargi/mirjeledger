@@ -1,7 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  User,
+  signOut as firebaseSignOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  AuthError,
+} from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase';
 import { ADMIN_EMAIL } from '@/lib/constants';
 import { LoginSchema } from '@/lib/schemas';
@@ -24,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email === ADMIN_EMAIL) {
+      if (user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
         setUser(user);
       } else {
         setUser(null);
@@ -39,7 +46,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (values.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       throw new Error('You are not authorized to access this application.');
     }
-    await signInWithEmailAndPassword(auth, values.email, values.password);
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+    } catch (error) {
+      const authError = error as AuthError;
+      if (authError.code === 'auth/user-not-found') {
+        // If the admin user doesn't exist, create it.
+        // This makes the first-time login seamless.
+        await createUserWithEmailAndPassword(auth, values.email, values.password);
+      } else {
+        // Re-throw other errors (e.g., wrong password)
+        throw error;
+      }
+    }
     router.push('/dashboard');
   };
 
