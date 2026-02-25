@@ -26,6 +26,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" href="/assets/mirjelogo.jpeg" type="image/jpeg" />
       </head>
       <body className={`${inter.variable} font-body antialiased`}>
         <FirebaseClientProvider>

@@ -2,8 +2,8 @@
   "placeholderImages": [
     {
       "id": "logo",
-      "description": "Application logo",
-      "imageUrl": "https://storage.googleapis.com/maker-studio-attachments/images/1/20240907153625.590001.png",
+      "description": "Mirje Tea Depot Logo",
+      "imageUrl": "/assets/mirjelogo.jpeg",
       "imageHint": "tea logo"
     }
   ]
