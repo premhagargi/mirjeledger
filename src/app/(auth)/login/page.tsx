@@ -18,7 +18,7 @@ export default function LoginPage() {
             className="rounded-md mb-4"
           />
         )}
-        <CardTitle className="text-2xl font-headline">Brewventory Pro</CardTitle>
+        <CardTitle className="text-2xl font-headline">Mirje Tea Depot</CardTitle>
       </CardHeader>
       <CardContent>
         <LoginForm />

@@ -3,8 +3,8 @@
     {
       "id": "logo",
       "description": "Application logo",
-      "imageUrl": "https://images.unsplash.com/photo-1665475854010-0205898aa597?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb2ZmZWUlMjBsb2dvfGVufDB8fHx8MTc3MTk5NzQyMXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "coffee logo"
+      "imageUrl": "https://storage.googleapis.com/maker-studio-attachments/images/1/20240907153625.590001.png",
+      "imageHint": "tea logo"
     }
   ]
 }

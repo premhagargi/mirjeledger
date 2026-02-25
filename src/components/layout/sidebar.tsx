@@ -55,7 +55,7 @@ export function AppSidebar() {
               <Coffee className="h-6 w-6 text-primary" />
             )}
             <h2 className="text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">
-                Brewventory
+                Mirje
             </h2>
         </div>
       </SidebarHeader>

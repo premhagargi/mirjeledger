@@ -7,8 +7,8 @@ import { AuthProvider } from '@/hooks/use-auth';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Brewventory Pro',
-  description: 'Inventory & Sales for Tea/Coffee Businesses',
+  title: 'Mirje Tea Depot',
+  description: 'Inventory & Sales for Mirje Tea Depot',
 };
 
 export default function RootLayout({
