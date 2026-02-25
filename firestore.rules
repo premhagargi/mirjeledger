@@ -1,0 +1,149 @@
+/**
+ * # Firestore Security Rules
+ *
+ * ## Core Philosophy
+ * This ruleset enforces a strict, role-based access control model centered around a single "admin" role.
+ * All data manipulation and read operations for the core business collections (stocks, agents, purchases, sales)
+ * are exclusively reserved for authenticated users who are designated as administrators.
+ * The default security posture is to deny all access, ensuring that only explicitly granted permissions are allowed.
+ *
+ * ## Data Structure
+ * The data is organized into flat, top-level collections. A special collection, `/roles_admin`, is used
+ * to manage administrative privileges. The existence of a user's UID as a document ID within this collection
+ * signifies that they are an admin. All other collections (`/stocks`, `/agents`, `/purchases`, `/sales`)
+ * store the primary application data.
+ *
+ * ## Key Security Decisions
+ * - **Admin-Only Access**: The entire database is secured by a single check: `isAdmin()`. This function
+ *   verifies that a user is authenticated and has a corresponding entry in the `/roles_admin` collection.
+ * - **No Public Access**: There is no publicly readable or writable data. All operations require an
+ *   authenticated admin user.
+ * - **Client-Side Role Management Disabled**: The `/roles_admin` collection is read-only from the client.
+ *   This is a critical security measure to prevent any possibility of privilege escalation. Admin roles
+ *   must be assigned manually through the Firebase Console.
+ * - **Homogeneous Collections**: Each collection contains data with a uniform security requirement (admin-only).
+ *   This design simplifies query rules (`list`) and ensures they are both secure and performant, avoiding
+ *   "rules are not filters" issues.
+ *
+ * ## Denormalization for Authorization
+ * Authorization is not based on per-document ownership but on a global user role. The `/roles_admin`
+ * collection serves as the central, authoritative source for this role. This avoids the need for `ownerId`
+ * fields or `get()` calls within rules, making them fast and simple. The model is built on the principle
+ * that a single admin user manages all data.
+ *
+ * ## Structural Segregation
+ * The architecture naturally follows the structural segregation principle by design. Since all data has the same
+ * high-security requirement (admin-only), there is no mixing of public and private data within any collection.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user has an admin role.
+     * Admin status is determined by the existence of a document in the
+     * `/roles_admin` collection with the user's UID as the document ID.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+
+    // -------------------------------------------------------------------------
+    // Role Definitions
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Secures the admin role definition collection. Admins can read
+     *              this collection to verify roles, but cannot modify it from the
+     *              client to prevent accidental lock-out or privilege escalation.
+     * @path        /roles_admin/{userId}
+     * @allow       (get) An admin with UID 'admin_abc' checks their own role document.
+     * @deny        (create) A user attempts to make themselves an admin from the client.
+     * @principle   Protects critical authorization data from client-side modification.
+     */
+    match /roles_admin/{userId} {
+      allow get: if isAdmin();
+      allow list: if false; // Listing roles is disabled for security.
+      allow create: if false; // Roles must be created server-side or in the console.
+      allow update: if false; // Roles must be updated server-side or in the console.
+      allow delete: if false; // Roles must be deleted server-side or in the console.
+    }
+
+
+    // -------------------------------------------------------------------------
+    // Application Data Collections
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Grants full CRUD access to admins for the master stock records.
+     * @path        /stocks/{stockId}
+     * @allow       (list) An admin user ('admin_abc') lists all stock items for the dashboard.
+     * @deny        (get) An anonymous or non-admin user attempts to read a stock item.
+     * @principle   Enforces global admin-only access for a core data collection.
+     */
+    match /stocks/{stockId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Grants full CRUD access to admins for the agent master records.
+     * @path        /agents/{agentId}
+     * @allow       (create) An admin user ('admin_abc') creates a new supplier agent.
+     * @deny        (update) A non-admin user attempts to modify an agent's details.
+     * @principle   Enforces global admin-only access for a core data collection.
+     */
+    match /agents/{agentId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Grants full CRUD access to admins for purchase transaction records.
+     * @path        /purchases/{purchaseId}
+     * @allow       (list) An admin user ('admin_abc') reads all purchases for a report.
+     * @deny        (delete) A non-admin user attempts to delete a purchase record.
+     * @principle   Enforces global admin-only access for a core data collection.
+     */
+    match /purchases/{purchaseId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Grants full CRUD access to admins for sale transaction records.
+     * @path        /sales/{saleId}
+     * @allow       (get) An admin user ('admin_abc') fetches a specific sale for an invoice.
+     * @deny        (create) An anonymous user attempts to log a new sale.
+     * @principle   Enforces global admin-only access for a core data collection.
+     */
+    match /sales/{saleId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

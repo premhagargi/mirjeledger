@@ -1,0 +1,294 @@
+{
+  "entities": {
+    "Stock": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Stock",
+      "type": "object",
+      "description": "Represents a master record for a type of tea or coffee stock item managed in the inventory.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Stock entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the tea or coffee stock item. This name must be unique across all stock items."
+        },
+        "type": {
+          "type": "string",
+          "description": "Categorization of the stock item, either 'tea' or 'coffee'.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the stock item record was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type",
+        "createdAt"
+      ]
+    },
+    "Agent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Agent",
+      "type": "object",
+      "description": "Represents a purchase agent or supplier from whom stock items are procured.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Agent entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the purchase agent or supplier."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number for the agent. This field is optional."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the agent record was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "createdAt"
+      ]
+    },
+    "Purchase": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Purchase",
+      "type": "object",
+      "description": "Represents an entry recording the acquisition or 'stock in' of tea/coffee items from an agent.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Purchase entry."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date when the stock purchase was made.",
+          "format": "date"
+        },
+        "agentId": {
+          "type": "string",
+          "description": "Reference to the Agent entity from whom the stock was purchased. (Relationship: Agent 1:N Purchase)"
+        },
+        "agentName": {
+          "type": "string",
+          "description": "The name of the agent at the time of purchase. Denormalized for reporting and historical accuracy."
+        },
+        "stockId": {
+          "type": "string",
+          "description": "Reference to the Stock entity that was purchased. (Relationship: Stock 1:N Purchase)"
+        },
+        "stockName": {
+          "type": "string",
+          "description": "The name of the stock item purchased. Denormalized for reporting and historical accuracy."
+        },
+        "kg": {
+          "type": "number",
+          "description": "The weight of the purchased stock in kilograms. Must be a positive value."
+        },
+        "bags": {
+          "type": "number",
+          "description": "The number of bags purchased."
+        },
+        "rate": {
+          "type": "number",
+          "description": "The rate per kilogram (₹ INR) at which the stock was purchased. Must be a positive value."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total calculated amount for the purchase (kg * rate)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the purchase entry was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "agentId",
+        "agentName",
+        "stockId",
+        "stockName",
+        "kg",
+        "bags",
+        "rate",
+        "totalAmount",
+        "createdAt"
+      ]
+    },
+    "Sale": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Sale",
+      "type": "object",
+      "description": "Represents an entry recording the outgoing stock or 'stock out' of tea/coffee items to a customer.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Sale entry."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date when the stock sale was made.",
+          "format": "date"
+        },
+        "customerType": {
+          "type": "string",
+          "description": "The type of customer for the sale, either 'customer' for a named customer or 'cash' for an anonymous cash sale.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customerName": {
+          "type": "string",
+          "description": "The name of the customer, relevant if customerType is 'customer'. This field is optional if customerType is 'cash'."
+        },
+        "stockId": {
+          "type": "string",
+          "description": "Reference to the Stock entity that was sold. (Relationship: Stock 1:N Sale)"
+        },
+        "stockName": {
+          "type": "string",
+          "description": "The name of the stock item sold. Denormalized for reporting and historical accuracy."
+        },
+        "kg": {
+          "type": "number",
+          "description": "The weight of the sold stock in kilograms. Must be a positive value."
+        },
+        "bags": {
+          "type": "number",
+          "description": "The number of bags sold."
+        },
+        "purchaseRate": {
+          "type": "number",
+          "description": "The purchase rate per kilogram (₹ INR) of the stock sold. This is typically a read-only value derived from historical purchase data."
+        },
+        "saleRate": {
+          "type": "number",
+          "description": "The rate per kilogram (₹ INR) at which the stock was sold. Must be a positive value."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total calculated amount for the sale (kg * saleRate)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the sale entry was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "customerType",
+        "stockId",
+        "stockName",
+        "kg",
+        "bags",
+        "purchaseRate",
+        "saleRate",
+        "totalAmount",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "admin_role",
+          "schema": {
+            "$ref": "#/backend/entities/admin_role"
+          },
+          "description": "This collection stores documents representing administrative roles. The existence of a document at `/roles_admin/request.auth.uid` signifies that the authenticated user is an administrator. This is crucial for implementing DBAC (Database Access Control) to secure the entire application for the single admin user, per application requirements. Documents in this collection will be minimal, likely just an `id` matching the `userId` and a `createdAt` timestamp, serving as a flag."
+        }
+      },
+      {
+        "path": "/stocks/{stockId}",
+        "definition": {
+          "entityName": "Stock",
+          "schema": {
+            "$ref": "#/backend/entities/Stock"
+          },
+          "description": "Master records for different types of tea or coffee stock items. All documents within this collection share a homogeneous security posture: accessible only by the authenticated administrator. CRUD operations are permitted for admins.",
+          "params": [
+            {
+              "name": "stockId",
+              "description": "Unique identifier for a specific stock item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agents/{agentId}",
+        "definition": {
+          "entityName": "Agent",
+          "schema": {
+            "$ref": "#/backend/entities/Agent"
+          },
+          "description": "Master records for purchase agents or suppliers. All documents within this collection share a homogeneous security posture: accessible only by the authenticated administrator. CRUD operations are permitted for admins.",
+          "params": [
+            {
+              "name": "agentId",
+              "description": "Unique identifier for a specific agent."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/purchases/{purchaseId}",
+        "definition": {
+          "entityName": "Purchase",
+          "schema": {
+            "$ref": "#/backend/entities/Purchase"
+          },
+          "description": "Records of stock acquisition from agents. Includes denormalized 'agentName' and 'stockName' for reporting and historical accuracy, ensuring authorization independence for these specific historical facts. All documents within this collection share a homogeneous security posture: accessible only by the authenticated administrator. CRUD operations are permitted for admins.",
+          "params": [
+            {
+              "name": "purchaseId",
+              "description": "Unique identifier for a specific purchase entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/sales/{saleId}",
+        "definition": {
+          "entityName": "Sale",
+          "schema": {
+            "$ref": "#/backend/entities/Sale"
+          },
+          "description": "Records of stock sales to customers. Includes denormalized 'stockName' and 'purchaseRate' for reporting and historical accuracy, ensuring authorization independence for these specific historical facts. All documents within this collection share a homogeneous security posture: accessible only by the authenticated administrator. CRUD operations are permitted for admins.",
+          "params": [
+            {
+              "name": "saleId",
+              "description": "Unique identifier for a specific sale entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, primarily adhering to the \"single user login (admin only)\" application requirement. \n\n**Authorization Independence (CRITICAL):** Authorization independence is achieved by implementing a Database Access Control (DBAC) model for the admin role. A dedicated collection, `/roles_admin/{userId}`, is used to explicitly mark authenticated users as administrators. The mere existence of a document at `roles_admin/request.auth.uid` grants admin privileges. Since all application data (Stock, Agent, Purchase, Sale) is managed exclusively by this single admin, all primary data collections (`/stocks`, `/agents`, `/purchases`, `/sales`) share a uniform security posture: full CRUD access for the admin, and no access for anyone else. This eliminates the need for hierarchical authorization dependencies, meaning no `get()` calls are required in security rules to determine access for documents within these primary data collections. This greatly simplifies rule logic and enables atomic operations without complex authorization side-effects. Denormalization of authorization context (e.g., `ownerId` or `members` maps) within the main data documents is not required because all data is centrally managed by the single admin, removing any ambiguity about ownership or access rights at a granular document level.\n\n**QAPs (Rules are not Filters):** The structure inherently supports Query-Accurate Permissions (QAPs) by adhering to the \"Structural Segregation (Homogeneous Security Posture)\" mandate. Each top-level collection (`/stocks`, `/agents`, `/purchases`, `/sales`) contains documents that all have the same security requirements—admin-only access. There are no mixed-security documents (e.g., public posts alongside private drafts) within the same collection. Therefore, when an admin queries a collection like `/stocks`, the security rules simply verify the admin's role. If the user is an admin, they can list all documents; if not, they can list none. This prevents security rules from acting as data filters, ensuring that list operations are performant and return accurate, authorized results without requiring additional client-side filtering or complex rule logic."
+  }
+}
