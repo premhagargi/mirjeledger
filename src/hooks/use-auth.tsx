@@ -9,7 +9,8 @@ import {
   createUserWithEmailAndPassword,
   AuthError,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase/firebase';
+import { auth, db } from '@/lib/firebase/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ADMIN_EMAIL } from '@/lib/constants';
 import { LoginSchema } from '@/lib/schemas';
 import { z } from 'zod';
@@ -47,7 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('You are not authorized to access this application.');
     }
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      // On successful login, ensure the admin role exists.
+      const user = userCredential.user;
+      const adminRoleRef = doc(db, 'roles_admin', user.uid);
+      await setDoc(adminRoleRef, { createdAt: serverTimestamp() }, { merge: true });
     } catch (error) {
       const authError = error as AuthError;
       // 'auth/invalid-credential' can mean user-not-found or wrong-password.
@@ -55,7 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential') {
         try {
           // Try to create the user for the first-time login.
-          await createUserWithEmailAndPassword(auth, values.email, values.password);
+          const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+          // On successful creation, create the admin role.
+          const user = userCredential.user;
+          const adminRoleRef = doc(db, 'roles_admin', user.uid);
+          await setDoc(adminRoleRef, { createdAt: serverTimestamp() });
         } catch (createError) {
           const createAuthError = createError as AuthError;
           // If user already exists, it means password for sign-in was wrong.
